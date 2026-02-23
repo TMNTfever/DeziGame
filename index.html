@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--
+    Bugs
+    
+    Features
+        textured blocks
+        fly
+        
+        character select
+        animation
+        biomes
+        magic crayon motif
+-->
+
+<html>
+<head>
+    <title>Dezi's Game</title>
+    <style>
+        canvas { border: 2px solid grey; background: #5c94fc; display: block; margin: 0 auto; image-rendering: pixelated; }
+    </style>
+</head>
+<body bgcolor='000'>
+    <canvas id="gameCanvas" width="800" height="480"></canvas>
+    <script>
+        // New Player properties to track direction
+        const player = {
+            x: 50, y: 100,
+            width: 50, height: 50,
+            dx: 0, dy: 0,
+            speed: 4,
+            isJumping: false,
+            facing: 1 // 1 for Right, -1 for Left
+        };
+        
+        // Hotbar blocks/colors
+        let blocks = [
+            {
+                x: 250, y: 430, // Entity position
+                parts: [
+                    { relX: 0,   relY: 0,  w: 25, h: 25, color: 'red' },
+                    { relX: 30,  relY: 0,  w: 25, h: 25, color: 'orange' },
+                    { relX: 60,  relY: 0,  w: 25, h: 25, color: 'yellow' },
+                    { relX: 90,  relY: 0,  w: 25, h: 25, color: 'green' },
+                    { relX: 120, relY: 0,  w: 25, h: 25, color: 'blue' },
+                    { relX: 150, relY: 0,  w: 25, h: 25, color: 'purple' },
+                    { relX: 180, relY: 0,  w: 25, h: 25, color: 'white' },
+                    { relX: 210, relY: 0,  w: 25, h: 25, color: 'black' },
+                    { relX: 240, relY: 0,  w: 25, h: 25, color: 'grey' },
+                    { relX: 270, relY: 0,  w: 25, h: 25, color: 'brown' }
+                ]
+            }
+        ];
+        
+        var blockColor = 'red'; // Default block color
+        var blockNum = 1; // Default block number
+
+        // Initial platforms array
+        let platforms = [
+            { x: 0, y: 400, width: 800, height: 80, color: '#8b4513' } // Ground platform
+        ];
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Load the Player Sprite
+        const playerImg = new Image();
+        playerImg.src = 'assets/player.png'; // Server maps this to your local folder
+
+        const keys = {};
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        // Handle 'v' key for placing blocks
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            
+            if (e.code === 'KeyV') {
+                const ghost = getGhostPosition();
+                // Add new block to the collision array
+                platforms.push({
+                    x: ghost.x,
+                    y: ghost.y,
+                    width: 50,
+                    height: 50,
+                    color: blockColor
+                });
+            } else if (e.code === 'KeyB') {
+                const ghost = getGhostPosition();
+                
+                // Filter the array: Keep only platforms NOT inside the ghost square
+                platforms = platforms.filter(plat => {
+                    const isOverlap = 
+                        ghost.x < plat.x + plat.width &&
+                        ghost.x + 50 > plat.x &&
+                        ghost.y < plat.y + plat.height &&
+                        ghost.y + 50 > plat.y;
+
+                    // Return false if it overlaps (this removes it from the array)
+                    return !isOverlap;
+                });
+            } else if (e.code === 'Digit1') {
+                blockNum = 1;
+            } else if (e.code === 'Digit2') {
+                blockNum = 2;
+            } else if (e.code === 'Digit3') {
+                blockNum = 3;
+            } else if (e.code === 'Digit4') {
+                blockNum = 4;
+            } else if (e.code === 'Digit5') {
+                blockNum = 5;
+            } else if (e.code === 'Digit6') {
+                blockNum = 6;
+            } else if (e.code === 'Digit7') {
+                blockNum = 7;
+            } else if (e.code === 'Digit8') {
+                blockNum = 8;
+            } else if (e.code === 'Digit9') {
+                blockNum = 9;
+            } else if (e.code === 'Digit0') {
+                blockNum = 10;
+            }
+            
+            blockColor = blocks[0].parts[blockNum - 1].color; // Get block color
+        });
+
+        // Helper to calculate where the ghost/new block goes
+        function getGhostPosition() {
+            const offset = 10; // Distance in front of player
+            const blockWidth = 50;
+            const blockHeight = 50;
+            
+            return {
+                // Position based on where player is facing
+                x: player.facing === 1 ? (Math.round((player.x + player.width) / 50 ) * 50) : (Math.round((player.x - blockWidth) / 50) * 50),
+                y: Math.round(player.y / 50) * 50
+            };
+        }
+
+        function update() {
+            // Track direction
+            if (keys['ArrowLeft']) {                  // If the left arrow gets pushed the player will move, then...
+                if (player.x < 1) {                   // If the player is on the left wall, then...
+                    player.dx = 0;                    // The player does not move
+                } else {                              // Otherwise
+                    player.dx = -player.speed;        // Move the character left
+                    player.facing = -1;               // And change direction to left
+                }
+            } else if (keys['ArrowRight']) {          // Otherwise if the right arrow gets pushed, the player will move, then...
+                if (player.x > 750) {                 // If the player is on the right wall, then...
+                    player.dx = 0;                    // The player does not move
+                } else {                              // Otherwise
+                    player.dx = player.speed;         // Move the character right
+                    player.facing = 1;                // And change direction to right
+                }
+            } else {
+                player.dx = 0;
+            }
+
+            // Rest of the gravity and jump logic from before
+            player.dy += 0.8;
+            player.x += player.dx;
+            player.y += player.dy;
+
+            // Collision detection loop from
+            let onAnyPlatform = false;
+            platforms.forEach(plat => {
+                if (player.dy >= 0 &&
+                    player.x + player.width > plat.x &&
+                    player.x < plat.x + plat.width &&
+                    player.y + player.height <= plat.y + player.dy &&
+                    player.y + player.height + player.dy >= plat.y) {
+                    
+                    player.y = plat.y - player.height;
+                    player.dy = 0;
+                    onAnyPlatform = true;
+                }
+            });
+            player.isJumping = !onAnyPlatform;
+
+            // Jump height
+            if (keys['Space'] && !player.isJumping) {
+                player.dy = -10;
+                player.isJumping = true;
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw existing platforms
+            platforms.forEach(plat => {
+                ctx.fillStyle = plat.color;
+                ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            });
+
+            // Draw dotted ghost block
+            const ghost = getGhostPosition();
+            ctx.setLineDash([5, 5]); // Create dotted effect
+            ctx.strokeStyle = "rgba(255, 255, 255, 2)";
+            ctx.strokeRect(ghost.x, ghost.y, 50, 50);
+            ctx.setLineDash([]); // Reset line to solid for other drawing
+
+            // Draw character sprite
+            ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+            
+            // Draw hotbar for current block
+            blocks.forEach(blocks => {
+                blocks.parts.forEach((part, index) => {
+                    // Absolute Position = Parent + Relative
+                    ctx.fillStyle = part.color;
+                    ctx.fillRect(blocks.x + part.relX, blocks.y + part.relY, part.w, part.h);
+                    
+                    // Draw the Number (Index)
+                    const absX = blocks.x + part.relX;
+                    const absY = blocks.y + part.relY;
+                    ctx.fillStyle = "white"; // Text color
+                    ctx.font = "18px Arial";  // Font style
+                    ctx.textAlign = "center"; // Horizontal center
+                    ctx.textBaseline = "middle"; // Vertical center
+                    ctx.fillText((index + 1) % 10, absX + (part.w / 2), absY - 10) // Actual text and location
+                });
+            });
+            
+            // Draw outline on hotbar
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2; 
+            ctx.strokeRect(blocks[0].x + ((blockNum - 1) * 30), blocks[0].y, 25, 25); 
+        }
+
+        playerImg.onload = () => {
+            function gameLoop() {
+                update();
+                draw();
+                requestAnimationFrame(gameLoop);
+            }
+            gameLoop();
+        };
+    </script>
+</body>
+</html>
