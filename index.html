@@ -27,7 +27,7 @@
             x: 50, y: 100,
             width: 50, height: 50,
             dx: 0, dy: 0,
-            speed: 2,
+            speed: 3,
             isJumping: false,
             facing: 1 // 1 for Right, -1 for Left
         };
@@ -179,7 +179,7 @@
 
             // Jump height
             if (keys['Space'] && !player.isJumping) {
-                player.dy = -12;
+                player.dy = -14;
                 player.isJumping = true;
             }
         }
