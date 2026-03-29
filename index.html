@@ -5,7 +5,7 @@
     Features
         textured blocks
         fly
-        
+        stage scrolling
         character select
         animation
         biomes
@@ -227,6 +227,7 @@
             ctx.strokeRect(blocks[0].x + ((blockNum - 1) * 30), blocks[0].y, 25, 25); 
         }
 
+        // Main function
         playerImg.onload = () => {
             function gameLoop() {
                 update();
