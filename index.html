@@ -4,11 +4,10 @@
     
     Features
         textured blocks
-        fly
-        stage scrolling
+            biomes
+        diagonal flying
         character select
-        animation
-        biomes
+        animated sprites
         magic crayon motif
 -->
 
@@ -22,6 +21,10 @@
 <body bgcolor='000'>
     <canvas id="gameCanvas" width="800" height="480"></canvas>
     <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const halfScreen = canvas.width / 2;
+    
         // New Player properties to track direction
         const player = {
             x: 50, y: 100,
@@ -29,9 +32,16 @@
             dx: 0, dy: 0,
             speed: 3,
             isJumping: false,
-            facing: 1 // 1 for Right, -1 for Left
+            facing: 1, // 1 for Right, -1 for Left
+            isFlying: false
         };
         
+        const camera = {
+            x: 0,
+            minx: -5000,
+            maxx: 5000
+        };
+
         // Hotbar blocks/colors
         let blocks = [
             {
@@ -56,11 +66,8 @@
 
         // Initial platforms array
         let platforms = [
-            { x: 0, y: 400, width: 800, height: 80, color: '#8b4513' } // Ground platform
+            { x: -5000, y: halfScreen, width: 10400, height: 80, color: '#8b4513' } // Ground platform
         ];
-        
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
 
         // Load the Player Sprite
         const playerImg = new Image();
@@ -139,25 +146,37 @@
         function update() {
             // Track direction
             if (keys['ArrowLeft']) {                  // If the left arrow gets pushed the player will move, then...
-                if (player.x < 1) {                   // If the player is on the left wall, then...
+                if (player.x < camera.minx) {                   // If the player is on the left wall, then...
                     player.dx = 0;                    // The player does not move
                 } else {                              // Otherwise
                     player.dx = -player.speed;        // Move the character left
                     player.facing = -1;               // And change direction to left
                 }
             } else if (keys['ArrowRight']) {          // Otherwise if the right arrow gets pushed, the player will move, then...
-                if (player.x > 750) {                 // If the player is on the right wall, then...
+                if (player.x > camera.maxx + halfScreen - player.width) {                 // If the player is on the right wall, then...
                     player.dx = 0;                    // The player does not move
                 } else {                              // Otherwise
                     player.dx = player.speed;         // Move the character right
                     player.facing = 1;                // And change direction to right
                 }
+            } else if (keys['ArrowUp']) {             // If the up arrow gets pushed the player will fly
+                player.isFlying = true;
+                player.dy = 0;
+                if (player.y > 1)  {
+                    player.y += -5;
+                }
+            } else if (keys['ArrowDown']) {           // If the down arrow gets pushed, the player will fall
+                player.isFlying = false;
+                player.dy += 0.8;
             } else {
                 player.dx = 0;
             }
 
             // Rest of the gravity and jump logic from before
-            player.dy += 0.8;
+            if (player.isFlying == false) {
+                player.dy += 0.8;
+            }
+            
             player.x += player.dx;
             player.y += player.dy;
 
@@ -182,10 +201,17 @@
                 player.dy = -14;
                 player.isJumping = true;
             }
-        }
+            
+            // Update camera position
+            camera.x = player.x - halfScreen;
+            if (camera.x < camera.minx) camera.x = camera.minx;
+            if (camera.x > camera.maxx - halfScreen) camera.x = camera.maxx - halfScreen;
+        } // End of update()
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(-camera.x, 0);
             
             // Draw existing platforms
             platforms.forEach(plat => {
@@ -202,6 +228,9 @@
 
             // Draw character sprite
             ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+            
+            // Restore camera coordinates
+            ctx.restore();
             
             // Draw hotbar for current block
             blocks.forEach(blocks => {
@@ -225,7 +254,7 @@
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 2; 
             ctx.strokeRect(blocks[0].x + ((blockNum - 1) * 30), blocks[0].y, 25, 25); 
-        }
+        } // End of draw()
 
         // Main function
         playerImg.onload = () => {
@@ -235,7 +264,19 @@
                 requestAnimationFrame(gameLoop);
             }
             gameLoop();
-        };
+        }; // End of main
     </script>
+    
+    <center><details style="color: #DDD;">
+        <summary>Game Instructions</summary>
+        <p>Numbers: Selects a color
+        <br>'V': Places block of selected color
+        <br>'B': Erases a block        
+        <br>Space bar: Jump button
+        <br>← and →: Moves character left and Right
+        <br>↑: Fly upwards
+        <br>↓: Instant fall
+        </p>
+    </details></center>
 </body>
 </html>
