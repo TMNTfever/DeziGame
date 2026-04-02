@@ -63,6 +63,13 @@
         
         var blockColor = 'red'; // Default block color
         var blockNum = 1; // Default block number
+        const bgImg = new Image();
+        bgImg.src = 'assets/bg1.jpg'; 
+        
+        const background = {
+            width: 2048,
+            parallaxFactor: 0.2 // Moves at 20% of the player's speed
+        };
 
         // Initial platforms array
         let platforms = [
@@ -209,7 +216,9 @@
         } // End of update()
 
         function draw() {
+            const bgScroll = camera.x * background.parallaxFactor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(bgImg, -bgScroll, 0, background.width, canvas.height);
             ctx.save();
             ctx.translate(-camera.x, 0);
             
