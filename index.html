@@ -218,7 +218,7 @@
         function draw() {
             const bgScroll = camera.x * background.parallaxFactor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(bgImg, -bgScroll, 0, background.width, canvas.height);
+            ctx.drawImage(bgImg, -1000 - bgScroll, 0, background.width, canvas.height);
             ctx.save();
             ctx.translate(-camera.x, 0);
             
