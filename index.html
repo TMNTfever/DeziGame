@@ -88,16 +88,16 @@
             { x: -5000, y: halfScreen, width: 10400, height: 80, color: '#8b4513' } // Ground platform
         ];
 
-        pCount = 0;
+        var pCount = 0;
         
         // Create random platforms
         while (pCount < 200) {
             pCount = pCount + 1;
-            pColor = '';
-            pColorRand = Math.floor(Math.random(1, 10));
+            let pColor = '';
+            let pColorRand = Math.floor(Math.random(1, 10));
             // Divide game space by 50px blocks, then generate random numbers to place them
-            pX = Math.floor(Math.random(-100, 100));
-            pY = Math.floor(Math.random(0, 7));
+            let pX = Math.floor(Math.random(-100, 100));
+            let pY = Math.floor(Math.random(0, 7));
             pX = pX * 50;
             pY = pY * 50;
 
