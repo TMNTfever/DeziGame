@@ -88,6 +88,35 @@
             { x: -5000, y: halfScreen, width: 10400, height: 80, color: '#8b4513' } // Ground platform
         ];
 
+        pCount = 0;
+        
+        // Create random platforms
+        while (pCount < 200) {
+            pCount++;
+            pColor = '';
+            pColorRand = Math.floor(Math.random(1, 10));
+            // Divide game space by 50px blocks, then generate random numbers to place them
+            pX = Math.floor(Math.random(-100, 100));
+            pY = Math.floor(Math.random(0, 7));
+            pX = pX * 50;
+            pY = pY * 50;
+
+            switch (pColorRand) {
+                case 1: pColor = 'red'; break;
+                case 2: pColor = 'orange'; break;
+                case 3: pColor = 'yellow'; break;
+                case 4: pColor = 'green'; break;
+                case 5: pColor = 'blue'; break;
+                case 6: pColor = 'purple'; break;
+                case 7: pColor = 'white'; break;
+                case 8: pColor = 'black'; break;
+                case 9: pColor = 'grey'; break;
+                case 10: pColor = 'brown'; break;
+            }
+
+            platforms.push({x: pX, y: pY, width: 50, height: 50, color: pColor});
+        }
+        
         // Load the Player Sprite
         const playerImg = new Image();
         playerImg.src = 'assets/player1.png'; // Server maps this to your local folder
