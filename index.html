@@ -92,7 +92,7 @@
         
         // Create random platforms
         while (pCount < 200) {
-            pCount++;
+            pCount = pCount + 1;
             pColor = '';
             pColorRand = Math.floor(Math.random(1, 10));
             // Divide game space by 50px blocks, then generate random numbers to place them
@@ -115,6 +115,7 @@
             }
 
             platforms.push({x: pX, y: pY, width: 50, height: 50, color: pColor});
+cosole.log(x + " " + y + " " + pColor);
         }
         
         // Load the Player Sprite
