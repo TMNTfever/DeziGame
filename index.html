@@ -94,10 +94,10 @@
         while (pCount < 200) {
             pCount = pCount + 1;
             let pColor = '';
-            let pColorRand = Math.floor(Math.random(1, 10));
+            let pColorRand = Math.floor(Math.random() * 10) + 1;
             // Divide game space by 50px blocks, then generate random numbers to place them
-            let pX = Math.floor(Math.random(-100, 100));
-            let pY = Math.floor(Math.random(0, 7));
+            let pX = Math.floor(Math.random() * 108);
+            let pY = Math.floor(Math.random() * 8);
             pX = pX * 50;
             pY = pY * 50;
 
@@ -115,7 +115,7 @@
             }
 
             platforms.push({x: pX, y: pY, width: 50, height: 50, color: pColor});
-console.log(x + " " + y + " " + pColor);
+console.log(pX + " " + pY + " " + pColor);
         }
         
         // Load the Player Sprite
